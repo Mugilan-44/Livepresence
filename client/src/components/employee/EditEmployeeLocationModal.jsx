@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, MapPin, ShieldCheck, UserCheck, Building2, CheckCircle2, Award, DollarSign, User, Mail, Phone, Edit3, Shield, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import AddLocationModal from '../admin/AddLocationModal';
 import RoleManagementModal from '../admin/RoleManagementModal';
+import { calculateDynamicProfileScore } from '../../config/api';
 
-export default function EditEmployeeLocationModal({ employee, activeUser, onClose, onSave }) {
+export default function EditEmployeeLocationModal({ employee, activeUser, onClose, onSave, documents = [] }) {
   const [locationsList, setLocationsList] = useState([]);
   const [rolesList, setRolesList] = useState([]);
   const [showAddLoc, setShowAddLoc] = useState(false);
@@ -44,11 +45,12 @@ export default function EditEmployeeLocationModal({ employee, activeUser, onClos
   const [msg, setMsg] = useState(null);
 
   const isAdmin = ['SUPER_ADMIN', 'HR'].includes(activeUser?.role);
-  const onboardingDetails = employee?.onboarding_details || {
-    percentage: employee?.profile_score || 80,
-    status: employee?.profile_score === 100 ? 'Onboarding Completed' : 'In Progress',
+  const dynamicScore = calculateDynamicProfileScore(employee, documents);
+  const onboardingDetails = {
+    percentage: dynamicScore,
+    status: dynamicScore === 100 ? 'Onboarding Completed' : 'In Progress',
     completedItems: ['Personal Details', 'Contact Details', 'Joining Date', 'Department Assigned'],
-    pendingItems: ['PAN Document Verified', 'Aadhaar Document Verified']
+    pendingItems: dynamicScore === 100 ? [] : ['Mandatory Document Verification Pending']
   };
 
   const handleRoleChange = (newRole) => {

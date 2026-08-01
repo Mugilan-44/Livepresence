@@ -1,14 +1,16 @@
 import React from 'react';
 import { X, User, Phone, Mail, MapPin, Calendar, CreditCard, Building, ShieldCheck, HeartPulse, Edit3, CheckCircle2, AlertCircle } from 'lucide-react';
+import { calculateDynamicProfileScore } from '../../config/api';
 
-export default function EmployeeProfileModal({ employee, onClose, activeUser, onEditEmployee }) {
+export default function EmployeeProfileModal({ employee, onClose, activeUser, onEditEmployee, documents = [] }) {
   if (!employee) return null;
   const isAdmin = ['SUPER_ADMIN', 'HR'].includes(activeUser?.role);
-  const onboarding = employee?.onboarding_details || {
-    percentage: employee?.profile_score || 80,
-    status: employee?.profile_score === 100 ? 'Onboarding Completed' : 'In Progress',
-    completedItems: ['Personal Details Completed', 'Contact Details Completed', 'Address Details Completed', 'Emergency Contact Configured', 'Joining Date Confirmed', 'Department Assigned', 'Designation Assigned'],
-    pendingItems: ['Aadhaar Card Uploaded & Verified', 'PAN Card Uploaded & Verified', 'Employment Agreement Verified']
+  const dynamicScore = calculateDynamicProfileScore(employee, documents);
+  const onboarding = {
+    percentage: dynamicScore,
+    status: dynamicScore === 100 ? 'Onboarding Completed' : 'In Progress',
+    completedItems: ['Personal Details Completed', 'Contact Details Completed', 'Address Details Completed', 'Department Assigned', 'Designation Assigned'],
+    pendingItems: dynamicScore === 100 ? [] : ['Mandatory Document Verification Pending']
   };
 
   return (

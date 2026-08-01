@@ -5,8 +5,9 @@ import AddEmployeeModal from './AddEmployeeModal';
 import EditEmployeeLocationModal from './EditEmployeeLocationModal';
 import AddLocationModal from '../admin/AddLocationModal';
 import RoleManagementModal from '../admin/RoleManagementModal';
+import { calculateDynamicProfileScore } from '../../config/api';
 
-export default function EmployeeDirectory({ employees, onSelectEmployee, onAddEmployee, activeUser }) {
+export default function EmployeeDirectory({ employees, onSelectEmployee, onAddEmployee, activeUser, documents = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
   const [branchFilter, setBranchFilter] = useState('All');
@@ -248,15 +249,20 @@ export default function EmployeeDirectory({ employees, onSelectEmployee, onAddEm
                     <div className="text-[10px] text-slate-500 mt-0.5">{emp.shift_timing || 'General Shift'}</div>
                   </td>
                   <td className="py-3 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${emp.profile_score === 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                          style={{ width: `${emp.profile_score || 75}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300">{emp.profile_score || 75}%</span>
-                    </div>
+                    {(() => {
+                      const dynamicScore = calculateDynamicProfileScore(emp, documents);
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${dynamicScore === 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                              style={{ width: `${dynamicScore}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300">{dynamicScore}%</span>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="py-3 px-3 text-right">
                     <div className="flex items-center justify-end gap-1.5">

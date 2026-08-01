@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, UploadCloud, CheckCircle, AlertCircle, Award, UserCheck, Shield, Plus, FileText, CheckCircle2, XCircle, Lock, CreditCard, GraduationCap, Award as Medal, FileSpreadsheet, Eye } from 'lucide-react';
 import UploadDocumentModal from './documents/UploadDocumentModal';
 import ViewDocumentPreviewModal from './documents/ViewDocumentPreviewModal';
+import { calculateDynamicProfileScore } from '../config/api';
 
 export default function DocumentVerificationWidget({ activeUser, documents, onUploadDoc, onReviewDoc }) {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -62,11 +63,7 @@ export default function DocumentVerificationWidget({ activeUser, documents, onUp
   const passportStatus = getItemStatus(['passport', 'license']);
   const bankStatus = getItemStatus(['bank', 'cheque']);
 
-  const approvedChecklistCount = [aadhaarStatus, panStatus, mark10Status, mark12Status, passportStatus, bankStatus].filter(s => s.isPresent).length;
-  const userStoredScore = activeUser?.profile_score ?? 100;
-  const profileScore = approvedChecklistCount > 0 
-    ? Math.min(100, Math.round((approvedChecklistCount / 6) * 100))
-    : userStoredScore;
+  const profileScore = calculateDynamicProfileScore(activeUser, ownUserDocs);
 
   const checklistItems = [
     { key: 'aadhaar', label: 'Aadhaar Card', statusInfo: aadhaarStatus, icon: CreditCard, cat: 'National Identity (Aadhaar Card)' },
