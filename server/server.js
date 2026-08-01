@@ -43,6 +43,17 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Production Health Check Endpoints
+app.get(['/health', '/api/health'], (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'Prolync LivePresence Backend API',
+    company: 'Prolync Infotech Pvt. Ltd.',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
 const PASSWORD_MIN_LENGTH = 12;
 
 function passwordIsStrong(password) {
