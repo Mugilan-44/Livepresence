@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "cd server && node server.js",
+    "start": "node server/server.js",
     "build": "cd server && npm install"
   },
   "dependencies": {
