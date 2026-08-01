@@ -13,8 +13,8 @@
     }
   },
   "stat_counts": {
-    "all": 1,
-    "present": 1,
+    "all": 8,
+    "present": 8,
     "not_in": 0,
     "leave": 0,
     "weekoff": 0,
@@ -23,17 +23,17 @@
   "branches": [
     {
       "id": "br-1",
-      "name": "Headquarters (Chennai)",
+      "name": "Chennai HQ",
       "city": "Chennai",
       "code": "MAA-01",
-      "employees_count": 1
+      "employees_count": 5
     },
     {
       "id": "br-2",
       "name": "Bengaluru Tech Park",
       "city": "Bengaluru",
       "code": "BLR-02",
-      "employees_count": 0
+      "employees_count": 3
     }
   ],
   "departments": [
@@ -41,21 +41,21 @@
       "id": "dept-1",
       "name": "Engineering & Operations",
       "code": "ENG",
-      "lead": "Mohammed Muzzammil S",
+      "lead": "Mugilan S",
       "budget": "₹15,00,000"
     },
     {
       "id": "dept-2",
       "name": "Human Resources",
       "code": "HR",
-      "lead": "HR Administrator",
+      "lead": "Sarah Jenkins",
       "budget": "₹4,50,000"
     },
     {
       "id": "dept-3",
       "name": "Executive & Leadership",
       "code": "EXEC",
-      "lead": "Mohammed Muzzammil S",
+      "lead": "Rahul Kannan",
       "budget": "₹20,00,000"
     }
   ],
@@ -87,22 +87,155 @@
   ],
   "users": [
     {
-      "id": "u-admin",
-      "employee_id": "EMP-0001",
+      "id": "u-1",
+      "employee_id": "EMP-1001",
+      "name": "Rahul Kannan",
+      "email": "rahul@prolync.in",
+      "password": "Prolync",
+      "role": "SUPER_ADMIN",
+      "department": "Executive & Leadership",
+      "designation": "Director of Operations",
+      "branch": "Chennai HQ",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 180000,
+      "joining_date": "2024-01-15",
+      "phone": "9876543210",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 100,
+      "active": true
+    },
+    {
+      "id": "u-2",
+      "employee_id": "EMP-1002",
+      "name": "Sarah Jenkins",
+      "email": "hr@prolync.com",
+      "password": "Prolync",
+      "role": "HR",
+      "department": "Human Resources",
+      "designation": "Head of People & HR Ops",
+      "branch": "Chennai HQ",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 95000,
+      "joining_date": "2024-03-01",
+      "phone": "9876543211",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 100,
+      "active": true
+    },
+    {
+      "id": "u-3",
+      "employee_id": "EMP-1003",
+      "name": "Mugilan S",
+      "email": "mugilan@prolync.in",
+      "password": "Prolync",
+      "role": "MANAGER",
+      "department": "Engineering & Operations",
+      "designation": "Engineering Manager",
+      "branch": "Bengaluru Tech Park",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 110000,
+      "joining_date": "2024-06-10",
+      "phone": "9876543212",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 95,
+      "active": true
+    },
+    {
+      "id": "u-4",
+      "employee_id": "EMP-1004",
+      "name": "Balakrishnan",
+      "email": "balakrishnan@prolync.in",
+      "password": "Prolync",
+      "role": "FULL_TIME",
+      "department": "Engineering & Operations",
+      "designation": "Senior Full-Stack Engineer",
+      "branch": "Chennai HQ",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 85000,
+      "joining_date": "2025-01-10",
+      "phone": "9876543213",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 90,
+      "active": true
+    },
+    {
+      "id": "u-5",
+      "employee_id": "EMP-1005",
       "name": "Mohammed Muzzammil S",
       "email": "mohammed.muzzammil.s@gmail.com",
       "password": "Prolync",
       "role": "SUPER_ADMIN",
-      "department": "Executive & Leadership",
-      "designation": "System Administrator",
-      "branch": "Headquarters (Chennai)",
+      "department": "Engineering & Operations",
+      "designation": "Software Engineer Intern",
+      "branch": "Chennai HQ",
       "shift_timing": "General (09:00 AM - 06:00 PM)",
-      "base_salary": 120000,
-      "joining_date": "2026-01-01",
-      "phone": "9876543210",
+      "base_salary": 65000,
+      "joining_date": "2025-05-01",
+      "phone": "9839855844",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250",
       "verified_employee": true,
-      "profile_score": 100,
+      "profile_score": 95,
+      "active": true
+    },
+    {
+      "id": "u-6",
+      "employee_id": "EMP-1006",
+      "name": "Sivath",
+      "email": "sivath@prolync.in",
+      "password": "Prolync",
+      "role": "FULL_TIME",
+      "department": "Engineering & Operations",
+      "designation": "Frontend Specialist",
+      "branch": "Bengaluru Tech Park",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 75000,
+      "joining_date": "2025-08-01",
+      "phone": "9876543215",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 85,
+      "active": true
+    },
+    {
+      "id": "usr-1785492323403",
+      "employee_id": "EMP-0107",
+      "name": "Vishal Willbrite",
+      "email": "vishalwillbrite@gmail.com",
+      "password": "Prolync",
+      "role": "FULL_TIME",
+      "department": "Engineering & Operations",
+      "designation": "QA Lead",
+      "branch": "Chennai HQ",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 70000,
+      "joining_date": "2026-01-01",
+      "phone": "9876543216",
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 90,
+      "active": true
+    },
+    {
+      "id": "usr-1785492409085",
+      "employee_id": "EMP-0108",
+      "name": "Rohith",
+      "email": "rohithhh259@gmail.com",
+      "password": "Prolync",
+      "role": "FULL_TIME",
+      "department": "Engineering & Operations",
+      "designation": "DevOps Engineer",
+      "branch": "Bengaluru Tech Park",
+      "shift_timing": "General (09:00 AM - 06:00 PM)",
+      "base_salary": 72000,
+      "joining_date": "2026-01-15",
+      "phone": "9876543217",
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=250",
+      "verified_employee": true,
+      "profile_score": 90,
       "active": true
     }
   ],
@@ -119,13 +252,14 @@
     "notice_period_days": 2
   },
   "leave_balances": [
-    {
-      "user_id": "u-admin",
-      "casual": 12,
-      "sick": 10,
-      "earned": 15,
-      "comp_off": 2
-    }
+    { "user_id": "u-1", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "u-2", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "u-3", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "u-4", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "u-5", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "u-6", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "usr-1785492323403", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 },
+    { "user_id": "usr-1785492409085", "casual": 12, "sick": 10, "earned": 15, "comp_off": 2 }
   ],
   "holidays": [
     { "id": "hol-1", "title": "Republic Day", "date": "2026-01-26", "day": "Monday", "type": "National Holiday" },
@@ -144,7 +278,17 @@
       "client": "Prolync Infotech Pvt. Ltd.",
       "budget": "₹10,00,000",
       "deadline": "2026-12-31",
-      "lead": "Mohammed Muzzammil S",
+      "lead": "Rahul Kannan",
+      "status": "Active",
+      "created_at": "2026-08-01T00:00:00.000Z"
+    },
+    {
+      "id": "proj-2",
+      "title": "Enterprise Mobile Platform",
+      "client": "Prolync Global",
+      "budget": "₹15,00,000",
+      "deadline": "2026-11-30",
+      "lead": "Mugilan S",
       "status": "Active",
       "created_at": "2026-08-01T00:00:00.000Z"
     }
