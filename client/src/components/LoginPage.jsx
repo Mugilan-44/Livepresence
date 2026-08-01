@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, ArrowRight, KeyRound, CheckCircle2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 /* ── Shared Sub-Components (Defined OUTSIDE parent component to prevent unmounting/focus loss) ── */
 const inputBase = {
@@ -75,10 +76,10 @@ export default function LoginPage({ onLoginSuccess }) {
     e.preventDefault();
     setErrorMsg(null); setInfoMsg(null); setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password })
+        body: JSON.stringify({ username: email.trim(), email: email.trim(), password })
       });
       const data = await res.json();
       if (res.ok) { onLoginSuccess(data.token, data.user); }
@@ -92,7 +93,7 @@ export default function LoginPage({ onLoginSuccess }) {
     e.preventDefault();
     setErrorMsg(null); setInfoMsg(null); setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(getApiUrl('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })

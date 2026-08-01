@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import LoginPage from './components/LoginPage';
+import { getApiUrl } from './config/api';
 
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
@@ -149,7 +150,7 @@ export default function App() {
   const [showSmtpModal, setShowSmtpModal] = useState(false);
 
   const handleUpdatePermissions = async (userId, permissions) => {
-    await fetch(`/api/employees/${userId}/permissions`, {
+    await fetch(getApiUrl(`/api/employees/${userId}/permissions`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -158,7 +159,7 @@ export default function App() {
         actorName: activeUser.name
       })
     });
-    fetch('/api/users').then(r => r.json()).then(setUsers);
+    fetch(getApiUrl('/api/users')).then(r => r.json()).then(setUsers);
   };
 
   // Toggle Theme (Dark / Light)
@@ -216,27 +217,27 @@ export default function App() {
   const fetchData = async () => {
     try {
       const [uRes, gRes, aRes, asSummary, wRes, pRes, tRes, wlLogs, dRes, prRes, ancRes, evRes, audRes, compRes, wlStats, stRes, bRes, annRes, custRes, notifRes, menuRes] = await Promise.all([
-        fetch('/api/employees').then(r => r.json()),
-        fetch('/api/geofence').then(r => r.json()),
-        fetch('/api/attendance/logs').then(r => r.json()),
-        fetch('/api/attendance/reports').then(r => r.json()),
-        fetch('/api/leaves').then(r => r.json()),
-        fetch('/api/projects').then(r => r.json()),
-        fetch('/api/tasks').then(r => r.json()),
-        fetch('/api/work-logs').then(r => r.json()),
-        fetch('/api/documents').then(r => r.json()),
-        fetch('/api/payroll').then(r => r.json()),
-        fetch('/api/announcements').then(r => r.json()),
-        fetch('/api/events').then(r => r.json()),
-        fetch('/api/audit-logs').then(r => r.json()),
-        fetch('/api/company/settings').then(r => r.json()),
-        fetch('/api/workload').then(r => r.json()),
-        fetch('/api/stats').then(r => r.json()),
-        fetch('/api/birthdays').then(r => r.json()),
-        fetch('/api/anniversaries').then(r => r.json()),
-        fetch('/api/customizations').then(r => r.json()),
-        fetch(`/api/notifications?userId=${activeUser?.id || ''}`).then(r => r.json()),
-        fetch('/api/menus').then(r => r.json()).catch(() => [])
+        fetch(getApiUrl('/api/employees')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/geofence')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl('/api/attendance/logs')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/attendance/reports')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl('/api/leaves')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/projects')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/tasks')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/work-logs')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/documents')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/payroll')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/announcements')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/events')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/audit-logs')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/company/settings')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl('/api/workload')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl('/api/stats')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl('/api/birthdays')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/anniversaries')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/customizations')).then(r => r.json()).catch(() => null),
+        fetch(getApiUrl(`/api/notifications?userId=${activeUser?.id || ''}`)).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/menus')).then(r => r.json()).catch(() => [])
       ]);
 
       setUsers(uRes);
