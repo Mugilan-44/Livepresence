@@ -43,6 +43,26 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Root API Welcome Endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 Prolync LivePresence Backend API Service is Live',
+    company: 'Prolync Infotech Pvt. Ltd.',
+    service: 'LivePresence Enterprise Backend',
+    version: '1.0.0',
+    status: 'healthy',
+    documentation: 'https://github.com/mohdmuzz/ProlyncLivepresence#readme',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth/login',
+      employees: '/api/employees',
+      leaves: '/api/leaves/policy',
+      attendance: '/api/attendance/geofence',
+      company: '/api/admin/company'
+    }
+  });
+});
+
 // Production Health Check Endpoints
 app.get(['/health', '/api/health'], (req, res) => {
   res.json({
