@@ -294,9 +294,140 @@
     }
   ],
   "tasks": [],
-  "work_logs": [],
-  "user_documents": [],
-  "payroll_records": [],
+  "user_documents": [
+    {
+      "id": "doc-u1-1",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "National Identity (Aadhaar Card)",
+      "file_name": "Rahul_Kannan_Aadhaar.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u1-2",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "Tax Identity (PAN Card)",
+      "file_name": "Rahul_Kannan_PAN.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u1-3",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "10th Class SSLC Marksheet",
+      "file_name": "Rahul_Kannan_10th_Marksheet.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u1-4",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "12th Class Higher Secondary Marksheet",
+      "file_name": "Rahul_Kannan_12th_Marksheet.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u1-5",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "Passport Document",
+      "file_name": "Rahul_Kannan_Passport.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u1-6",
+      "user_id": "u-1",
+      "employee_name": "Rahul Kannan",
+      "document_type": "Bank Passbook / Cancelled Cheque",
+      "file_name": "Rahul_Kannan_BankPassbook.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-01-15T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-1",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "National Identity (Aadhaar Card)",
+      "file_name": "Muzzammil_Aadhaar.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-2",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "Tax Identity (PAN Card)",
+      "file_name": "Muzzammil_PAN.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-3",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "10th Class SSLC Marksheet",
+      "file_name": "Muzzammil_10th.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-4",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "12th Class Higher Secondary Marksheet",
+      "file_name": "Muzzammil_12th.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-5",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "Bank Passbook / Cancelled Cheque",
+      "file_name": "Muzzammil_BankPassbook.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    },
+    {
+      "id": "doc-u5-6",
+      "user_id": "u-5",
+      "employee_name": "Mohammed Muzzammil S",
+      "document_type": "Passport Document",
+      "file_name": "Muzzammil_Passport.pdf",
+      "file_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+      "status": "Approved & Verified",
+      "uploaded_at": "2026-05-01T09:00:00.000Z",
+      "reviewed_by": "Sarah Jenkins"
+    }
+  ],
   "announcements": [
     {
       "id": "anc-1",

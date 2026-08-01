@@ -63,7 +63,10 @@ export default function DocumentVerificationWidget({ activeUser, documents, onUp
   const bankStatus = getItemStatus(['bank', 'cheque']);
 
   const approvedChecklistCount = [aadhaarStatus, panStatus, mark10Status, mark12Status, passportStatus, bankStatus].filter(s => s.isPresent).length;
-  const profileScore = Math.min(100, Math.round((approvedChecklistCount / 6) * 100));
+  const userStoredScore = activeUser?.profile_score ?? 100;
+  const profileScore = approvedChecklistCount > 0 
+    ? Math.min(100, Math.round((approvedChecklistCount / 6) * 100))
+    : userStoredScore;
 
   const checklistItems = [
     { key: 'aadhaar', label: 'Aadhaar Card', statusInfo: aadhaarStatus, icon: CreditCard, cat: 'National Identity (Aadhaar Card)' },
