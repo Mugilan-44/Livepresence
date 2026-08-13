@@ -1,0 +1,22 @@
+{
+  "name": "prolync-backend",
+  "version": "1.0.0",
+  "description": "LivePresence HRMS Portal – Backend REST API | Prolync Infotech Pvt. Ltd.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate:sqlite": "node scripts/migrate-sqlite-to-mysql.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.23.2",
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.19.1",
+    "sql.js": "^1.14.1"
+  }
+}

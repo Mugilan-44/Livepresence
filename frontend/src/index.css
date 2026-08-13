@@ -1,0 +1,295 @@
+@import '@fontsource-variable/geist';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Geist Variable', Geist, system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    background: var(--app-bg);
+    color: var(--app-ink);
+  }
+}
+
+/* A restrained, editorial colour system. Accent is user-selectable in Settings,
+   while surfaces stay quiet enough for dense operational work. */
+:root {
+  --app-bg: #f8f7f8;
+  --app-ink: #17131a;
+  --accent: #5e245f;
+  --accent-hover: #481949;
+  --accent-soft: #f4eaf4;
+  --accent-line: #dec5df;
+  --accent-ink: #5e245f;
+}
+html[data-accent='clementine'] { --accent: #b94b16; --accent-hover: #94390c; --accent-soft: #fff0e7; --accent-line: #f1c6ae; --accent-ink: #9a3b0b; }
+html[data-accent='jade'] { --accent: #176b50; --accent-hover: #10533e; --accent-soft: #e8f5ef; --accent-line: #b7decf; --accent-ink: #176b50; }
+html[data-accent='raspberry'] { --accent: #a32658; --accent-hover: #7f1c43; --accent-soft: #fce9f0; --accent-line: #efbdd0; --accent-ink: #92224f; }
+html[data-accent='graphite'] { --accent: #3f4147; --accent-hover: #2c2e33; --accent-soft: #eeeff1; --accent-line: #d0d2d6; --accent-ink: #34363b; }
+html[data-accent='multicolor'] { --accent: #9b315e; --accent-hover: #70213f; --accent-soft: #fff0e7; --accent-line: #e8b8a3; --accent-ink: #7e2850; }
+
+/* Replace legacy blue/cyan accents without rewriting every existing feature. */
+.bg-blue-600, .bg-cyan-600, .bg-sky-600 { background-color: var(--accent) !important; }
+.hover\:bg-blue-500:hover, .hover\:bg-cyan-500:hover, .hover\:bg-sky-500:hover { background-color: var(--accent-hover) !important; }
+.text-blue-300, .text-blue-400, .text-blue-500, .text-blue-600, .text-blue-700, .text-cyan-300, .text-cyan-400, .text-cyan-500, .text-cyan-600, .text-cyan-700 { color: var(--accent-ink) !important; }
+.bg-blue-50, .bg-blue-100, .bg-cyan-50, .bg-cyan-100, .bg-cyan-500\/10, .bg-blue-500\/10, .dark .bg-blue-500\/10, .dark .bg-cyan-500\/10 { background-color: var(--accent-soft) !important; }
+.border-blue-400, .border-blue-500, .border-cyan-400, .border-cyan-500, .border-cyan-500\/20, .border-cyan-500\/30 { border-color: var(--accent-line) !important; }
+.ring-blue-500\/20, .ring-cyan-500\/20 { --tw-ring-color: color-mix(in srgb, var(--accent) 20%, transparent) !important; }
+
+/* High Visibility Global Font Contrast Overrides */
+html:not(.dark) body, body:not(.dark) {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* High Contrast Override for Faint Grey Utilities in Light Mode */
+html:not(.dark) .text-slate-400,
+body:not(.dark) .text-slate-400 {
+  color: #475569 !important; /* Dark Slate 600 for crisp readability */
+}
+
+html:not(.dark) .text-slate-500,
+body:not(.dark) .text-slate-500 {
+  color: #334155 !important; /* Dark Slate 700 */
+}
+
+html:not(.dark) .text-slate-300,
+body:not(.dark) .text-slate-300 {
+  color: #1e293b !important; /* Dark Slate 800 */
+}
+
+html:not(.dark) .text-slate-600,
+body:not(.dark) .text-slate-600 {
+  color: #0f172a !important; /* Slate 900 */
+}
+
+html:not(.dark) .text-cyan-400,
+body:not(.dark) .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+/* High Visibility Table Standards */
+table th {
+  font-family: 'Geist Variable', Geist, system-ui, sans-serif;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+html:not(.dark) table th {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) table td {
+  color: #1e293b !important;
+  font-weight: 500;
+}
+
+/* Dark Mode Palette */
+.dark body, html.dark body, body.dark {
+  background-color: #0b0f19;
+  color: #f8fafc;
+}
+
+.dark .glass-card, html.dark .glass-card {
+  background: #111827;
+  border: 1px solid #1f293d;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+}
+
+.dark .glass-card:hover, html.dark .glass-card:hover {
+  border-color: #334155;
+}
+
+.dark .glass-pill, html.dark .glass-pill {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 9999px;
+  color: #e2e8f0;
+}
+
+/* Light Mode Palette */
+.light body, html.light body, body.light {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.light .glass-card, html.light .glass-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+  border-radius: 16px;
+}
+
+.light .glass-card:hover, html.light .glass-card:hover {
+  border-color: #cbd5e1;
+}
+
+.light .glass-pill, html.light .glass-pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  color: #1e293b;
+}
+
+/* Personal command-centre themes. Tailwind's dark class continues to provide
+   accessible component contrast; these rules give Midnight and AMOLED their
+   distinct surface character. */
+.midnight {
+  background: #0b1020;
+}
+
+.midnight .glass-card {
+  background: #121a2e;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.amoled {
+  background: #000;
+}
+
+.amoled .glass-card {
+  background: #000;
+  border-color: #222;
+  box-shadow: none;
+}
+
+.amoled .glass-pill {
+  background: #090909;
+  border-color: #272727;
+}
+
+.font-heading {
+  font-family: 'Geist Variable', Geist, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.font-mono {
+  font-family: 'Geist Mono', 'Geist Variable', monospace;
+}
+
+@layer components {
+  .hr-sidebar {
+    @apply sticky top-0 h-screen shrink-0 overflow-y-auto bg-white dark:bg-[#0f172a] border-r border-slate-200/80 dark:border-slate-800;
+  }
+
+  .nav-item {
+    @apply w-full min-h-10 rounded-xl px-3 flex items-center gap-3 text-left text-[13px] font-semibold text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white;
+  }
+
+  .nav-item-active {
+    @apply bg-slate-900 text-white shadow-sm hover:bg-slate-900 hover:text-white dark:bg-white dark:text-slate-900 dark:hover:bg-white dark:hover:text-slate-900 font-bold;
+  }
+
+  .header-icon-button {
+    @apply w-10 h-10 rounded-xl inline-flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-colors;
+  }
+
+  .page-eyebrow {
+    @apply text-[11px] font-bold tracking-[0.14em] uppercase;
+    color: var(--accent-ink);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ── Full-Width Layout Enforcement ─────────────────────────────────
+   Prevents black/empty side gaps on all screen sizes.
+   The outer app shell always occupies 100% of the viewport width.
+──────────────────────────────────────────────────────────────────── */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root > div {
+  width: 100%;
+  flex: 1;
+}
+
+/* ── Responsive Table & Grid Overflow ───────────────────────────── */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Glass Card Responsive ──────────────────────────────────────── */
+.glass-card {
+  border-radius: 12px;
+  padding: 16px;
+}
+
+@media (min-width: 640px) {
+  .glass-card {
+    border-radius: 16px;
+    padding: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .glass-card {
+    border-radius: 16px;
+    padding: 24px;
+  }
+}
+
+/* ── Mobile Typography ──────────────────────────────────────────── */
+@media (max-width: 639px) {
+  h1 { font-size: 1.375rem !important; }
+  h2 { font-size: 1.125rem !important; }
+  .text-2xl { font-size: 1.25rem !important; }
+  .text-xl  { font-size: 1.05rem !important; }
+}
+
+/* ── Prevent horizontal scroll on mobile ───────────────────────── */
+@media (max-width: 1023px) {
+  body, #root { overflow-x: hidden; }
+}
+
+@media (max-width: 639px) {
+  input, select, textarea, button { max-width: 100%; }
+  .modal-panel { width: calc(100vw - 1.5rem); max-height: calc(100dvh - 1.5rem); }
+}
+
+/* ── Sidebar + Content column always fill screen height ─────────── */
+.hr-sidebar {
+  height: 100%;
+  min-height: 100vh;
+}
