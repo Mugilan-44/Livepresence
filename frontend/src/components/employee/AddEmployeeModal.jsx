@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, UserPlus, IndianRupee, Mail, Plus } from 'lucide-react';
 import AddLocationModal from '../admin/AddLocationModal';
 import RoleManagementModal from '../admin/RoleManagementModal';
+import { getApiUrl } from '../../config/api';
 
 export default function AddEmployeeModal({ onClose, onAddEmployee, activeUser }) {
   const [locationsList, setLocationsList] = useState([]);
@@ -13,7 +14,7 @@ export default function AddEmployeeModal({ onClose, onAddEmployee, activeUser })
   const isAdmin = ['SUPER_ADMIN', 'HR'].includes(activeUser?.role);
 
   const fetchRolesData = () => {
-    fetch('/api/roles')
+    fetch(getApiUrl('/api/roles'))
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setRolesList(data);
@@ -22,13 +23,13 @@ export default function AddEmployeeModal({ onClose, onAddEmployee, activeUser })
   };
 
   const fetchJobRoles = () => {
-    fetch('/api/collaboration/job-roles').then(r => r.json()).then(data => {
+    fetch(getApiUrl('/api/collaboration/job-roles')).then(r => r.json()).then(data => {
       if (Array.isArray(data)) setJobRoles(data);
     }).catch(() => setJobRoles([]));
   };
 
   useEffect(() => {
-    fetch('/api/locations')
+    fetch(getApiUrl('/api/locations'))
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setLocationsList(data.filter(l => l.active !== false));
@@ -42,8 +43,9 @@ export default function AddEmployeeModal({ onClose, onAddEmployee, activeUser })
   const addJobRole = async () => {
     const name = window.prompt('New company role (example: UI/UX Designer)');
     if (!name?.trim()) return;
-    const res = await fetch('/api/collaboration/job-roles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, actorRole: activeUser?.role }) });
-    const data = await res.json();
+    const res = await fetch(getApiUrl('/api/collaboration/job-roles'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, actorRole: activeUser?.role }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Unable to add company role');
     if (data.role) { setJobRoles(prev => [...prev, data.role].sort((a, b) => a.name.localeCompare(b.name))); setFormData(prev => ({ ...prev, designation: data.role.name })); }
     else setError(data.error || 'Unable to add company role.');
   };

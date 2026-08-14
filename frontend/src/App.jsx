@@ -328,7 +328,7 @@ export default function App() {
 
 
   const handleSaveCustomizations = async (newCustomizations) => {
-    const res = await fetch('/api/customizations', {
+      const res = await fetch(getApiUrl('/api/customizations'), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -396,15 +396,20 @@ export default function App() {
     fetch(getApiUrl('/api/leaves/requests')).then(r => r.json()).then(setWfhRequests);
   };
 
-  const handleCreateTask = async (taskData) => {
-    await fetch('/api/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...taskData, userRole: activeUser.role, creatorId: activeUser.id, creatorName: activeUser.name })
-    });
-    fetch('/api/tasks').then(r => r.json()).then(setTasks);
-    fetch('/api/projects').then(r => r.json()).then(setProjects);
-  };
+const handleCreateTask = async (taskData) => {
+  const response = await fetch(getApiUrl('/api/tasks'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...taskData, userRole: activeUser.role, creatorId: activeUser.id, creatorName: activeUser.name })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Could not create this task.');
+  await Promise.all([
+    fetch(getApiUrl('/api/tasks')).then(r => r.json()).then(setTasks),
+    fetch(getApiUrl('/api/projects')).then(r => r.json()).then(setProjects)
+  ]);
+  return data.task;
+};
 
   const handleCreateProject = async (projData) => {
     const response = await fetch(getApiUrl('/api/projects'), {
@@ -441,8 +446,8 @@ export default function App() {
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Could not move this task.');
-    fetch('/api/tasks').then(r => r.json()).then(setTasks);
-    fetch('/api/projects').then(r => r.json()).then(setProjects);
+        fetch(getApiUrl('/api/tasks')).then(r => r.json()).then(setTasks);
+        fetch(getApiUrl('/api/projects')).then(r => r.json()).then(setProjects);
     return result.task;
   };
 
@@ -511,13 +516,13 @@ export default function App() {
 
   const [newEmployeeCredentials, setNewEmployeeCredentials] = useState(null);
 
-  const handleAddEmployee = async (empData) => {
-    // null is passed by handleRemoveEmployee to trigger a re-fetch after deletion
-    if (empData === null) {
-      fetch('/api/employees').then(r => r.json()).then(setUsers);
-      return;
-    }
-    const res = await fetch('/api/employees', {
+const handleAddEmployee = async (empData) => {
+  // null is passed by handleRemoveEmployee to trigger a re-fetch after deletion
+  if (empData === null) {
+    fetch(getApiUrl('/api/employees')).then(r => r.json()).then(setUsers);
+    return;
+  }
+  const res = await fetch(getApiUrl('/api/employees'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -525,25 +530,27 @@ export default function App() {
         actorName: activeUser?.name || 'Super Admin',
         userRole: activeUser?.role || 'SUPER_ADMIN'
       })
-    });
-    const data = await res.json();
-    if (data.invitation) {
-      setNewEmployeeCredentials(data.invitation);
-    }
-    fetch('/api/employees').then(r => r.json()).then(setUsers);
-    return data;
-  };
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Could not onboard this employee.');
+  if (data.invitation) {
+    setNewEmployeeCredentials(data.invitation);
+  }
+  fetch(getApiUrl('/api/employees')).then(r => r.json()).then(setUsers);
+  return data;
+};
 
-
-
-  const handlePublishAnnouncement = async (ancData) => {
-    await fetch('/api/announcements', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(ancData)
-    });
-    fetch('/api/announcements').then(r => r.json()).then(setAnnouncements);
-  };
+const handlePublishAnnouncement = async (ancData) => {
+  const res = await fetch(getApiUrl('/api/announcements'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ancData)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Could not publish this announcement.');
+  fetch(getApiUrl('/api/announcements')).then(r => r.json()).then(setAnnouncements);
+  return data;
+};
 
   const handleDeleteAnnouncement = async (announcementId) => {
     const response = await fetch(getApiUrl(`/api/announcements/${announcementId}`), { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userRole: activeUser?.role }) });

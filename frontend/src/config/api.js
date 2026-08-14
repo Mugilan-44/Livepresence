@@ -2,8 +2,14 @@ const IS_LOCAL = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 );
 const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const configuredApiIsNetlify = configuredApiUrl.includes('.netlify.app');
+// Netlify serves the SPA only. Keep production API traffic on the Render service
+// even if a Netlify environment variable has not been configured yet.
+const productionFallbackApiUrl = import.meta.env.PROD ? 'https://livepresence-api.onrender.com' : '';
 
-export const API_BASE = configuredApiUrl;
+export const API_BASE = configuredApiUrl && !configuredApiIsNetlify
+  ? configuredApiUrl
+  : productionFallbackApiUrl;
 
 export function getApiUrl(path) {
   if (!path) return API_BASE;

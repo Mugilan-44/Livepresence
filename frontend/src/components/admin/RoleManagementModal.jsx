@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Shield, Plus, Edit2, Trash2, Copy, Check, Users, ShieldAlert, Key, CheckCircle2, RefreshCw } from 'lucide-react';
+import { getApiUrl } from '../../config/api';
 
 export default function RoleManagementModal({ isOpen, onClose, activeUser, onRolesUpdated }) {
   const [roles, setRoles] = useState([]);
@@ -17,7 +18,7 @@ export default function RoleManagementModal({ isOpen, onClose, activeUser, onRol
   const fetchRoles = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/roles');
+      const res = await fetch(getApiUrl('/api/roles'));
       const data = await res.json();
       if (Array.isArray(data)) setRoles(data);
     } catch (err) {
@@ -69,7 +70,7 @@ export default function RoleManagementModal({ isOpen, onClose, activeUser, onRol
       const url = editingRole ? `/api/roles/${editingRole.id}` : '/api/roles';
       const method = editingRole ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await fetch(getApiUrl(url), {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +103,7 @@ export default function RoleManagementModal({ isOpen, onClose, activeUser, onRol
     setMsg(null);
 
     try {
-      const res = await fetch(`/api/roles/${role.id}`, { method: 'DELETE' });
+      const res = await fetch(getApiUrl(`/api/roles/${role.id}`), { method: 'DELETE' });
       const data = await res.json();
       if (res.ok) {
         setMsg({ type: 'success', text: data.message });
