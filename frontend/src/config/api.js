@@ -1,23 +1,17 @@
-const RENDER_BACKEND_URL = 'https://prolynclivepresence.onrender.com';
 const IS_LOCAL = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 );
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
 
-export const API_BASE = (import.meta.env.VITE_API_URL || '').trim() || (
-  IS_LOCAL
-    ? ''
-    : RENDER_BACKEND_URL
-);
+export const API_BASE = configuredApiUrl;
 
 export function getApiUrl(path) {
-  if (!path) return API_BASE || RENDER_BACKEND_URL;
+  if (!path) return API_BASE;
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  // Use Vite's local proxy in development so the portal and local API stay connected.
   if (IS_LOCAL && !API_BASE) return cleanPath;
-  const base = API_BASE || RENDER_BACKEND_URL;
-  return `${base}${cleanPath}`;
+  return API_BASE ? `${API_BASE}${cleanPath}` : cleanPath;
 }
 
 export function calculateDynamicProfileScore(user, documents = []) {

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import initSqlJs from 'sql.js';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
@@ -12,30 +13,47 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let localDb = null;
 const localDatabaseFile = path.join(__dirname, '.prolync-local.sqlite');
 
-// Resolve Database Connection Details dynamically from environment variables
 function getDbConfig() {
   const uri = process.env.MYSQL_PUBLIC_URL || process.env.MYSQL_URL || process.env.DATABASE_URL;
-  // If URI is available and does NOT use internal railway domain outside railway, use URI
-  if (uri && (!uri.includes('.railway.internal') || process.env.RAILWAY_ENVIRONMENT)) {
-    return {
-      uri: uri,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      dateStrings: true
-    };
-  }
+  if (uri) return { uri };
 
   return {
     host: process.env.DB_HOST || process.env.MYSQLHOST_PUBLIC || process.env.MYSQLHOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT_PUBLIC || process.env.MYSQLPORT || '3306', 10),
+    port: Number(process.env.DB_PORT || process.env.MYSQLPORT_PUBLIC || process.env.MYSQLPORT || 3306),
     user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
     password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || '',
-    database: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'prolync'
+  };
+}
+
+function getSslConfig() {
+  if (process.env.DB_SSL !== 'true') return undefined;
+  const ca = String(process.env.DB_SSL_CA || '').replace(/\\n/g, '\n');
+  return {
+    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
+    ...(ca ? { ca } : {})
+  };
+}
+
+function getPoolConfig(config) {
+  const ssl = getSslConfig();
+  const common = {
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: Math.max(1, Number(process.env.DB_CONNECTION_LIMIT || 5)),
     queueLimit: 0,
-    dateStrings: true
+    dateStrings: true,
+    ...(ssl ? { ssl } : {})
+  };
+
+  if (!config.uri) return { ...config, ...common };
+  const databaseUrl = new URL(config.uri);
+  return {
+    host: databaseUrl.hostname,
+    port: Number(databaseUrl.port || 3306),
+    user: decodeURIComponent(databaseUrl.username),
+    password: decodeURIComponent(databaseUrl.password),
+    database: decodeURIComponent(databaseUrl.pathname.replace(/^\//, '')),
+    ...common
   };
 }
 
@@ -48,43 +66,35 @@ let isConnected = false;
 export async function initMySQLPool() {
   if (process.env.LOCAL_DB === 'true') return initLocalDatabase();
   const config = getDbConfig();
+  const poolConfig = getPoolConfig(config);
 
   try {
-    if (config.uri) {
-      pool = mysql.createPool(config.uri);
-    } else {
-      try {
-        const tempConn = await mysql.createConnection({
-          host: config.host,
-          port: config.port,
-          user: config.user,
-          password: config.password
-        });
-        await tempConn.query(`CREATE DATABASE IF NOT EXISTS \`${config.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
-        await tempConn.end();
-      } catch (dbCreateErr) {
-        // Ignore if user lacks permissions to create DB directly
-      }
-
-      pool = mysql.createPool(config);
+    if (!config.uri && process.env.DB_CREATE_DATABASE === 'true') {
+      const tempConn = await mysql.createConnection({
+        host: poolConfig.host,
+        port: poolConfig.port,
+        user: poolConfig.user,
+        password: poolConfig.password,
+        ...(poolConfig.ssl ? { ssl: poolConfig.ssl } : {})
+      });
+      await tempConn.query(`CREATE DATABASE IF NOT EXISTS \`${poolConfig.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+      await tempConn.end();
     }
+
+    pool = mysql.createPool(poolConfig);
 
     // Test connection
     const conn = await pool.getConnection();
     conn.release();
 
     isConnected = true;
-    const hostInfo = config.uri ? 'Connection URI' : `${config.host}:${config.port}/${config.database}`;
-    console.log(`✅ [MySQL DB]: Successfully connected to MySQL database at ${hostInfo}`);
+    console.log(`✅ [MySQL DB]: Successfully connected to MySQL database at ${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
 
     await setupTables();
     return true;
   } catch (error) {
     isConnected = false;
-    console.error(`❌ [MySQL DB Connection Failure]: Unable to connect to MySQL at ${config.host || 'URI'}:${config.port || ''} (${error.message}).`);
-    if (error.message.includes('ENOTFOUND') && (config.host || '').includes('.railway.internal')) {
-      console.error(`💡 [CONFIG TIP]: "mysql.railway.internal" is only accessible INSIDE Railway. Since backend is on Render, use Railway's Public Networking Host (e.g. *.proxy.rlwy.net) & Port.`);
-    }
+    console.error(`❌ [MySQL DB Connection Failure]: Unable to connect to MySQL at ${poolConfig.host}:${poolConfig.port} (${error.message}).`);
     return false;
   }
 }
@@ -728,49 +738,46 @@ async function setupTables() {
     try { await pool.query('ALTER TABLE users ADD COLUMN aadhaar_number VARCHAR(20) NULL'); } catch { /* column already exists */ }
     try { await pool.query('ALTER TABLE users ADD COLUMN pan_number VARCHAR(20) NULL'); } catch { /* column already exists */ }
 
-    // Seed Data Safely (Only if users table is empty)
-    const [userRows] = await pool.query('SELECT COUNT(*) as count FROM users');
-    if (userRows[0].count === 0) {
-      console.log('📦 [MySQL Seed]: Seeding default core data into empty database tables...');
-      
-      // Seed Company Settings
-      await pool.query(`
-        INSERT INTO company_settings (id, company_name, tax_id, headquarters, currency, fiscal_year, office_name, latitude, longitude, radius_meters)
-        VALUES (1, 'Prolync Infotech Pvt. Ltd.', 'GSTIN33AAACN1298E1Z4', 'Kilambakkam, Vandalur, Tamil Nadu - 603210, India', 'INR (₹)', '2026-2027', 'Prolync HQ (Vandalur, Tamil Nadu)', 12.871133, 80.083898, 200)
-        ON DUPLICATE KEY UPDATE company_name=VALUES(company_name);
-      `);
+    // Fresh production databases start with only the founder. Existing data is
+    // never replaced, so normal application restarts are safe.
+    const companyName = String(process.env.COMPANY_NAME || 'Prolync LiveSpace').trim();
+    const officeName = String(process.env.OFFICE_NAME || 'Main Office').trim();
+    await pool.query(
+      `INSERT INTO company_settings (id, company_name, currency, fiscal_year, office_name, radius_meters)
+       VALUES (1, ?, 'INR (₹)', '2026-2027', ?, 250)
+       ON DUPLICATE KEY UPDATE company_name = VALUES(company_name), office_name = VALUES(office_name)`,
+      [companyName, officeName]
+    );
+    await pool.query(
+      `INSERT INTO leave_policy (id, yearly_casual, yearly_sick, yearly_earned, yearly_comp_off)
+       VALUES (1, 12, 10, 15, 2)
+       ON DUPLICATE KEY UPDATE id = id`
+    );
 
-      // Seed Users
-      const seedUsers = [
-        ['u-1', 'EMP-1001', 'Rahul Kannan', 'rahul@prolync.in', 'SUPER_ADMIN', 'CEO & Founder', 'Executive & Leadership', null, 'Chennai HQ', 'Chennai HQ', 'Male', '1988-04-12', 'O+', '+91 98402 91823', '+91 98402 99999 (Spouse)', 'Kilambakkam, Vandalur, Chennai, Tamil Nadu - 603210', '2020-01-01', 'Active', 180000, 'HDFC Bank Ltd.', '•••• •••• 8842', 'HDFC0001928', 100, 1, 'Prolync', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'],
-        ['u-2', 'EMP-1002', 'Sarah Jenkins', 'hr@prolync.com', 'HR', 'Head of HR & Operations', 'Human Resources', null, 'Chennai HQ', 'Chennai HQ', 'Female', '1991-08-23', 'A+', '+91 98401 88422', '+91 98401 88888 (Father)', 'Prolync Hub, Chennai, Tamil Nadu', '2021-03-15', 'Active', 85000, 'ICICI Bank Ltd.', '•••• •••• 1928', 'ICIC0000492', 100, 1, 'Prolync', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'],
-        ['u-3', 'EMP-1003', 'Mugilan S', 'mugilan@prolync.com', 'MANAGER', 'Principal Engineering Lead', 'Engineering & Operations', null, 'Bengaluru Tech Park', 'Bengaluru Tech Park', 'Male', '1990-11-05', 'B+', '+91 98400 77311', '+91 98400 77777 (Spouse)', 'Silicon Valley Hub, Bengaluru, Karnataka', '2021-06-01', 'Active', 110000, 'State Bank of India (SBI)', '•••• •••• 5519', 'SBIN0004412', 98, 1, 'Prolync', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'],
-        ['u-4', 'EMP-1004', 'Balakrishnan (Bala)', 'bala@prolync.com', 'FULL_TIME', 'Senior Full-Stack Developer', 'Engineering & Operations', 'u-3', 'Bengaluru Tech Park', 'Bengaluru Tech Park', 'Male', '1993-02-17', 'O-', '+91 98399 66900', '+91 98399 11111 (Mother)', 'Bengaluru Tech Hub, Karnataka', '2022-09-10', 'Active', 75000, 'Axis Bank Ltd.', '•••• •••• 4402', 'UTIB0000109', 95, 1, 'Prolync', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'],
-        ['u-5', 'EMP-1005', 'Mohammed Muzzammil S', 'muzzammil@prolync.in', 'INTERN', 'Software Engineer Intern', 'Engineering & Operations', 'u-3', 'Chennai HQ', 'Chennai HQ', 'Male', '2002-09-30', 'AB+', '+91 98398 55844', '+91 98398 22222 (Father)', 'Vandalur, Chennai, Tamil Nadu - 603210', '2026-01-15', 'Active', 35000, 'Kotak Mahindra Bank', '•••• •••• 7712', 'KKBK0000881', 100, 1, 'Prolync', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'],
-        ['u-6', 'EMP-1006', 'Sivathanu (Sivath)', 'sivath@prolync.com', 'FULL_TIME', 'Software Development Engineer', 'Engineering & Operations', 'u-3', 'Chennai HQ', 'Chennai HQ', 'Male', '1997-06-14', 'B+', '+91 98397 44321', '+91 98397 33333 (Father)', 'Chennai Vandalur Hub, Tamil Nadu', '2023-04-01', 'Active', 65000, 'HDFC Bank Ltd.', '•••• •••• 9921', 'HDFC0001882', 92, 1, 'Prolync', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80']
-      ];
+    const [userRows] = await pool.query('SELECT COUNT(*) AS count FROM users');
+    if (Number(userRows[0]?.count || 0) === 0) {
+      const founderName = String(process.env.BOOTSTRAP_FOUNDER_NAME || 'Rahul Kannan').trim();
+      const founderEmail = String(process.env.BOOTSTRAP_FOUNDER_EMAIL || 'rahul@prolync.in').trim().toLowerCase();
+      const founderPassword = String(process.env.BOOTSTRAP_FOUNDER_PASSWORD || '');
 
-      for (const u of seedUsers) {
+      if (!founderPassword) {
+        console.warn('⚠️ [MySQL Seed]: Database is empty. Set BOOTSTRAP_FOUNDER_PASSWORD to create the founder account.');
+      } else {
+        const passwordHash = crypto.scryptSync(founderPassword, 'prolync_salt_2026', 64).toString('hex');
         await pool.query(
-          `INSERT INTO users (id, employee_id, name, email, role, title, department, manager_id, branch, office_location, gender, dob, blood_group, mobile, emergency_contact, address, joining_date, employment_status, salary_base, bank_name, bank_account, ifsc_swift, profile_score, verified_employee, password, avatar)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE name=VALUES(name)`,
-          u
+          `INSERT INTO users (
+            id, employee_id, name, email, role, title, department, branch, office_location,
+            joining_date, employment_status, password
+          ) VALUES (?, ?, ?, ?, 'SUPER_ADMIN', 'Founder', 'Leadership', ?, ?, CURDATE(), 'Active', ?)`,
+          ['founder-1', 'EMP-1001', founderName, founderEmail, officeName, officeName, passwordHash]
         );
-
         await pool.query(
           `INSERT INTO leave_balances (user_id, casual, sick, earned, comp_off)
-           VALUES (?, 12, 10, 15, 2)
-           ON DUPLICATE KEY UPDATE casual=VALUES(casual)`,
-          [u[0]]
+           VALUES (?, 12, 10, 15, 2)`,
+          ['founder-1']
         );
+        console.log('✅ [MySQL Seed]: Clean founder account created.');
       }
-
-      await pool.query(`INSERT INTO branches (id, name, city, code, employees_count) VALUES ('br-1', 'Chennai HQ', 'Chennai', 'MAA-01', 4), ('br-2', 'Bengaluru Tech Park', 'Bengaluru', 'BLR-02', 2) ON DUPLICATE KEY UPDATE name=VALUES(name)`);
-      await pool.query(`INSERT INTO departments (id, name, code, \`lead\`, budget) VALUES ('dept-1', 'Engineering & Operations', 'ENG', 'Mugilan S', '₹15,00,000'), ('dept-2', 'Human Resources', 'HR', 'Sarah Jenkins', '₹4,50,000'), ('dept-3', 'Executive & Leadership', 'EXEC', 'Rahul Kannan', '₹20,00,000') ON DUPLICATE KEY UPDATE name=VALUES(name)`);
-      await pool.query(`INSERT INTO leave_policy (id, yearly_casual, yearly_sick, yearly_earned, yearly_comp_off) VALUES (1, 12, 10, 15, 2) ON DUPLICATE KEY UPDATE yearly_casual=VALUES(yearly_casual)`);
-
-      console.log('✅ [MySQL Seed]: Seeding completed successfully.');
     }
   } catch (err) {
     console.error('❌ [MySQL DB]: Error creating tables or seeding:', err.message);

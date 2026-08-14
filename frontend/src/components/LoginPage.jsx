@@ -16,7 +16,8 @@ export default function LoginPage({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
-  const turnstileEnabled = Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY)
+  const turnstileEnabled = import.meta.env.VITE_TURNSTILE_ENABLED === 'true'
+    && Boolean(import.meta.env.VITE_TURNSTILE_SITE_KEY)
     && (import.meta.env.PROD || import.meta.env.VITE_TURNSTILE_ENFORCE_LOCAL === 'true');
   const setSecurityToken = useCallback((token) => setTurnstileToken(token), []);
 

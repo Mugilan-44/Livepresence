@@ -48,7 +48,8 @@ function readSignedSession(token) {
 }
 
 async function verifyTurnstile(token, request) {
-  const shouldEnforce = process.env.NODE_ENV === 'production' || process.env.TURNSTILE_ENFORCE_LOCAL === 'true';
+  const shouldEnforce = process.env.TURNSTILE_ENABLED === 'true'
+    || process.env.TURNSTILE_ENFORCE_LOCAL === 'true';
   if (!shouldEnforce) return { success: true };
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return { success: false };
