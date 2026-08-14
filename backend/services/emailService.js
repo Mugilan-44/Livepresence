@@ -189,22 +189,51 @@ function parseSmtpError(err, host, user, port) {
   return `SMTP Connection Failed: ${msg}`;
 }
 
+function parseBoolean(value, fallback = false) {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+  }
+  return fallback;
+}
+
 async function getSmtpConfig() {
   try {
     const rows = await querySQL('SELECT * FROM smtp_config LIMIT 1');
     const dbSmtp = (rows && rows.length > 0) ? rows[0] : {};
 
-    const host = dbSmtp.host || process.env.SMTP_HOST || '';
-    const port = parseInt(dbSmtp.port || process.env.SMTP_PORT || 465, 10);
-    const rawUser = dbSmtp.user || process.env.SMTP_USER || '';
-    const rawPass = dbSmtp.pass || process.env.SMTP_PASS || '';
+    const envHost = String(process.env.SMTP_HOST || '').trim();
+    const envUser = String(process.env.SMTP_USER || '').trim();
+    const envPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
+    const envConfigured = Boolean(envHost && envUser && envPass);
 
-    const user = (rawUser || '').trim();
-    const pass = (rawPass || '').replace(/\s+/g, '');
-    const enabled = dbSmtp.enabled !== 0 && dbSmtp.enabled !== false;
-    const sender_name = dbSmtp.sender_name || process.env.SMTP_FROM_NAME || 'Prolync HR System';
-    const sender_email = dbSmtp.sender_email || process.env.SMTP_FROM || user;
-    const isSecure = port === 465 || dbSmtp.secure === 1 || process.env.SMTP_SECURE === 'true';
+    // Render's environment is the deployed source of truth. A stale smtp_config
+    // row must not silently route OTPs through an old employee mailbox.
+    const host = envConfigured ? envHost : String(dbSmtp.host || '').trim() || envHost;
+    const port = envConfigured
+      ? parseInt(process.env.SMTP_PORT || 465, 10)
+      : parseInt(dbSmtp.port || process.env.SMTP_PORT || 465, 10);
+    const rawUser = envConfigured ? envUser : (dbSmtp.user || envUser);
+    const rawPass = envConfigured ? envPass : (dbSmtp.pass || envPass);
+
+    const user = String(rawUser || '').trim();
+    const pass = String(rawPass || '').replace(/\s+/g, '');
+    const enabled = envConfigured
+      ? parseBoolean(process.env.SMTP_ENABLED, true)
+      : dbSmtp.enabled !== 0 && dbSmtp.enabled !== false;
+    const sender_name = envConfigured
+      ? String(process.env.SMTP_FROM_NAME || 'Prolync LiveSpace').trim()
+      : (dbSmtp.sender_name || process.env.SMTP_FROM_NAME || 'Prolync HR System');
+    const sender_email = envConfigured
+      ? String(process.env.SMTP_FROM || user).trim()
+      : (dbSmtp.sender_email || process.env.SMTP_FROM || user);
+    const isSecure = port === 465 || parseBoolean(
+      envConfigured ? process.env.SMTP_SECURE : dbSmtp.secure,
+      false
+    );
 
     return { host, port, user, pass, enabled, sender_name, sender_email, isSecure };
   } catch (e) {
@@ -213,10 +242,10 @@ async function getSmtpConfig() {
       port: parseInt(process.env.SMTP_PORT || 465, 10),
       user: (process.env.SMTP_USER || '').trim(),
       pass: (process.env.SMTP_PASS || '').replace(/\s+/g, ''),
-      enabled: true,
+      enabled: parseBoolean(process.env.SMTP_ENABLED, true),
       sender_name: process.env.SMTP_FROM_NAME || 'Prolync HR System',
       sender_email: process.env.SMTP_FROM || process.env.SMTP_USER || '',
-      isSecure: process.env.SMTP_SECURE === 'true'
+      isSecure: parseBoolean(process.env.SMTP_SECURE, false)
     };
   }
 }
@@ -227,7 +256,7 @@ export async function verifySmtpConnection(config = {}) {
   const port = parseInt(config.port || defaults.port, 10);
   const user = (config.user || defaults.user).trim();
   const pass = (config.pass || defaults.pass).replace(/\s+/g, '');
-  const isSecure = port === 465 || config.secure === true;
+  const isSecure = port === 465 || parseBoolean(config.secure, defaults.isSecure);
 
   if (!user || !pass) {
     return {
