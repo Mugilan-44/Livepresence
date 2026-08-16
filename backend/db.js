@@ -14,6 +14,21 @@ let localDb = null;
 const localDatabaseFile = path.join(__dirname, '.prolync-local.sqlite');
 
 function getDbConfig() {
+  // Explicit DB_* variables are the production contract. Prefer them over
+  // service-provider URLs so an old URL cannot silently override a new DB.
+  const explicitHost = process.env.DB_HOST;
+  const explicitUser = process.env.DB_USER;
+  const explicitDatabase = process.env.DB_NAME;
+  if (explicitHost && explicitUser && explicitDatabase) {
+    return {
+      host: explicitHost,
+      port: Number(process.env.DB_PORT || 3306),
+      user: explicitUser,
+      password: process.env.DB_PASSWORD || '',
+      database: explicitDatabase
+    };
+  }
+
   const uri = process.env.MYSQL_PUBLIC_URL || process.env.MYSQL_URL || process.env.DATABASE_URL;
   if (uri) return { uri };
 
